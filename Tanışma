@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tanışma Formu</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f3f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .form-container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      z-index: 10;
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+      display: none;
+      padding: 15px;
+      background: #fff9d6;
+      border-radius: 5px;
+      border: 1px solid #e2c96d;
+    }
+
+    #emojiBg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: center;
+      gap: 10px;
+      font-size: 2rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 1;
+    }
+
+    .heart {
+      position: fixed;
+      top: -50px;
+      color: red;
+      font-size: 24px;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    #videoBg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Tanışalım!</h2>
+  <form id="infoForm">
+    <label for="ad">Adınız:</label>
+    <input type="text" id="ad" name="ad" required>
+
+    <label for="soyad">Soyadınız:</label>
+    <input type="text" id="soyad" name="soyad" required>
+
+    <label for="sehir">Nerelisiniz?:</label>
+    <input type="text" id="sehir" name="sehir" required>
+
+    <label for="yas">Kaç yaşındasınız?:</label>
+    <input type="number" id="yas" name="yas" required>
+
+    <label for="cinsiyet">Cinsiyetiniz:</label>
+    <select id="cinsiyet" name="cinsiyet" required>
+      <option value="" disabled selected>Seçiniz</option>
+      <option value="erkek">Erkek</option>
+      <option value="kiz">Kız</option>
+      <option value="doblo">Doblo</option>
+    </select>
+
+    <button type="submit">Gönder</button>
+  </form>
+
+  <div class="result" id="result">
+    <div id="message"></div>
+    <div id="extraInfo"></div>
+  </div>
+</div>
+
+<div id="emojiBg"></div>
+<video id="videoBg" muted loop></video>
+<audio id="dobloAudio" src="https://cdn.jsdelivr.net/gh/ozanerturk/dosya/demovid/audio/denizabi-kornayabas.mp3"></audio>
+
+<script>
+  const form = document.getElementById('infoForm');
+  const result = document.getElementById('result');
+  const messageDiv = document.getElementById('message');
+  const extraInfoDiv = document.getElementById('extraInfo');
+  const emojiBg = document.getElementById('emojiBg');
+  const videoBg = document.getElementById('videoBg');
+  const dobloAudio = document.getElementById('dobloAudio');
+
+  function clearEffects() {
+    emojiBg.style.opacity = '0';
+    emojiBg.innerHTML = '';
+    document.querySelectorAll('.heart').forEach(el => el.remove());
+    document.body.style.background = '#f3f3f3';
+    videoBg.pause();
+    videoBg.style.display = 'none';
+    videoBg.src = '';
+    dobloAudio.pause();
+    dobloAudio.currentTime = 0;
+  }
+
+  function createEmojiElements(emojis, count = 30) {
+    emojiBg.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement('span');
+      span.textContent = emojis[i % emojis.length];
+      span.style.fontSize = (20 + Math.random() * 30) + 'px';
+      emojiBg.appendChild(span);
+    }
+    emojiBg.style.opacity = '1';
+  }
+
+  function createHeartRain() {
+    for (let i = 0; i < 20; i++) {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (3 + Math.random() * 3) + 's';
+      heart.style.fontSize = (15 + Math.random() * 25) + 'px';
+      heart.style.animationDelay = (Math.random() * 5) + 's';
+      heart.textContent = '❤️';
+      document.body.appendChild(heart);
+    }
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearEffects();
+
+    const ad = document.getElementById('ad').value.trim();
+    const soyad = document.getElementById('soyad').value.trim();
+    const sehir = document.getElementById('sehir').value.trim().toLowerCase();
+    const yas = document.getElementById('yas').value.trim();
+    const cinsiyet = document.getElementById('cinsiyet').value;
+
+    messageDiv.textContent = `Memnun oldum, ben de ${ad} ${soyad}!`;
+
+    if (sehir === 'bursa' || sehir === 'sivas') {
+      extraInfoDiv.textContent = "Ben de Bursa Yenişehir'de Menekşe Sokakta oturuyorum.";
+    } else {
+      extraInfoDiv.textContent = '';
+    }
+
+    if (cinsiyet === 'erkek') {
+      createEmojiElements(['🥳', '⚽', '🤩'], 40);
+      document.body.style.background = '#d0f0fd';
+
+    } else if (cinsiyet === 'kiz') {
+      createEmojiElements(['😍', '🤩', '😜'], 40);
+      document.body.style.background = '#ffe6f0';
+      createHeartRain();
+
+    } else if (cinsiyet === 'doblo') {
+      videoBg.src = 'https://cdn.jsdelivr.net/gh/ozanerturk/dosya/demovid/video/denizabi-kornayabas.mp4';
+      videoBg.style.display = 'block';
+      videoBg.play();
+      dobloAudio.play();
+      createEmojiElements(['🚗', '🎉', '😎'], 40);
+      document.body.style.background = '#e6ffe6';
